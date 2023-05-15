@@ -32,18 +32,27 @@ gallery.addEventListener("click", imgCLick);
 function imgCLick(evt) {
   evt.preventDefault();
 
-  if (evt.target.classList.contains("gallery__image")) {
-    const instance = basicLightbox.create(`
-    <img src="${evt.target.dataset.source}">
-    `);
-    instance.show();
+  if (evt.target.nodeName !== "IMG") {
+    return;
+  }
 
-    window.addEventListener("keydown", onCloseModal);
+  const instance = basicLightbox.create(
+    `
+        <img src="${evt.target.dataset.source}">`,
+    {
+      onShow: (instance) => {
+        window.addEventListener("keydown", onPressEscKey);
+      },
+      onClose: (instance) => {
+        window.removeEventListener("keydown", onPressEscKey);
+      },
+    }
+  );
+  instance.show();
 
-    function onCloseModal(evt) {
-      if (evt.code === "Escape") {
-        instance.close();
-      }
+  function onPressEscKey(event) {
+    if (event.code == "Escape") {
+      instance.close();
     }
   }
 }
